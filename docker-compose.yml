@@ -1,0 +1,30 @@
+services:
+  db:
+    image: postgres:15-alpine
+    container_name: quickbite-db
+    environment:
+      POSTGRES_USER: quickbite_user
+      POSTGRES_PASSWORD: securepassword123
+      POSTGRES_DB: quickbite_db
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U quickbite_user -d quickbite_db"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+
+  web:
+    build: .
+    container_name: quickbite-web
+    ports:
+      - "5000:5000"
+    environment:
+      - DATABASE_URL=postgresql+psycopg2://quickbite_user:securepassword123@db:5432/quickbite_db
+      - SECRET_KEY=quickbite_super_secret_docker_key
+    depends_on:
+      db:
+        condition: service_healthy
+
+volumes:
+  postgres_data:

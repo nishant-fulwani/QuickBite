@@ -156,23 +156,26 @@ def update_order(order_id):
     return redirect(url_for('admin_dashboard'))
 
 # --- App Execution ---
+# --- App Initialization ---
+# Moved OUTSIDE the __main__ block so 'flask run' in Docker executes it
+with app.app_context():
+    db.create_all()
+    # Seed Admin User
+    if not Admin.query.filter_by(username='admin').first():
+        hashed_pw = generate_password_hash('admin123')
+        default_admin = Admin(username='admin', password_hash=hashed_pw)
+        db.session.add(default_admin)
+        db.session.commit()
+    
+    # Seed Menu Items
+    if not MenuItem.query.first():
+        sample_data = [
+            MenuItem(name="QuickBite Classic Burger", description="Juicy beef patty with cheese, lettuce.", price=8.99, category="Main"),
+            MenuItem(name="Crispy Fries", description="Golden, salted French fries.", price=3.99, category="Side"),
+        ]
+        db.session.add_all(sample_data)
+        db.session.commit()
+
+# --- App Execution (For local development) ---
 if __name__ == '__main__':
-    with app.app_context():
-        db.create_all()
-        # Seed Admin User
-        if not Admin.query.filter_by(username='admin').first():
-            hashed_pw = generate_password_hash('admin123')
-            default_admin = Admin(username='admin', password_hash=hashed_pw)
-            db.session.add(default_admin)
-            db.session.commit()
-        
-        # Seed Menu Items
-        if not MenuItem.query.first():
-            sample_data = [
-                MenuItem(name="QuickBite Classic Burger", description="Juicy beef patty with cheese, lettuce.", price=8.99, category="Main"),
-                MenuItem(name="Crispy Fries", description="Golden, salted French fries.", price=3.99, category="Side"),
-            ]
-            db.session.add_all(sample_data)
-            db.session.commit()
-            
     app.run(debug=True)
