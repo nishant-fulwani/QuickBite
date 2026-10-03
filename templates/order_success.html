@@ -1,0 +1,17 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="text-center py-5">
+    <div class="mb-4">
+        <span style="font-size: 4rem;">✅</span>
+    </div>
+    <h2 class="text-success mb-3">Order Placed Successfully!</h2>
+    <h4>Order ID: #{{ order.id }}</h4>
+    <p class="lead mt-3">Thank you, <strong>{{ order.customer_name }}</strong>. Your order is currently <strong>{{ order.status }}</strong>.</p>
+    <p class="text-muted">It will be delivered to: <br> {{ order.customer_address }}</p>
+    
+    <div class="mt-5">
+        <a href="{{ url_for('home') }}" class="btn btn-outline-primary">Return to Menu</a>
+    </div>
+</div>
+{% endblock %}
